@@ -120,12 +120,12 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor did the item-by-item comparison and drafted the additions. I decided that the suburb-table issue was a wording error and not a leakage error.
 - Open knowledge gap: none new.
 
-### 2026-09-30 — Section 11.3: interactive estimator
-- What I did: Added ipywidgets controls (suburb search box, type, room sliders, land size, price index) that call `estimate_price()` and draw the estimate, the q25–q75 and q10–q90 bands, and every recorded sale of the same type in that suburb rescaled to the chosen index.
-- Problem / question: The deployment function existed but was easy to miss; a reader had to write a Python call to try a property. Also wanted a visual check of whether the interval sits where the suburb's own sales sit.
-- What I tried / how I verified: `interactive_output` so the chart updates on any control change without a button. Rendered the default case (3-bed house, Parramatta) offline to check the chart; comparable sales fall inside or near the band, with the outliers being the large blocks Section 10 discusses.
+### 2026-09-30 — Section 11.3: interactive estimator with a year selector
+- What I did: Added ipywidgets controls (suburb search box, type, room sliders, land size, year 2016–2030, assumed market growth) that call `estimate_price()` and draw the estimate path over the years, with the q10–q90 band and every recorded sale of the same type in that suburb.
+- Problem / question: The deployment function existed but a reader had to write a Python call to try a property, and the natural question "what will it be worth in year X" needs a market level for year X, which Section 8 showed no model here can learn.
+- What I tried / how I verified: For 2016–2021 the year selects the observed yearly median index; after 2021 the last value is extended at a growth rate the user sets (default: the index's own 2016–2021 average, 6.7%/yr). The projection is labelled as an assumption and drawn dashed. Rendered two cases offline (Parramatta house 2026; Chatswood apartment 2019) to check the chart. Because the model output is index-free, one prediction per property is enough; the year only rescales it.
 - Outcome / decision: Kept the printed demos in 11.1–11.2 because widgets do not render on a static GitHub view. Added a pointer in the notebook header and README.
-- AI tool used?: Cursor wrote the widget layout. I chose what to show in the chart (index-adjusted comparables rather than raw prices) so that old sales are comparable with the current estimate.
+- AI tool used?: Cursor wrote the widget layout. I decided that future years must be shown as a scenario with an explicit growth assumption rather than as a forecast, consistent with the research question's answer.
 - Open knowledge gap: none new.
 
 ---
