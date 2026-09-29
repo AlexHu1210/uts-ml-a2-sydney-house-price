@@ -64,6 +64,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the pipeline and the section text. The closed-form check is the evidence that the library call matches the formula; the α sweep and coefficient listing are notebook output.
 - Open knowledge gap: I know sklearn centres X and y to handle the intercept without penalising it, which is why my centred closed form matches. I have not read how it handles the sparse one-hot matrix internally (it did not need `.toarray()`).
 
+### 2026-09-30 — Section 5.2b: training the Ridge loss by iteration
+- What I did: Added hand-written gradient descent and Adam loops on the same Ridge loss, with a loss-curve plot and a comparison to the closed-form weights.
+- Problem / question: Gradient descent at the largest stable step (1/L) was still far from the minimum after 3,000 steps in my first test (max weight difference 0.70). I first thought the gradient was wrong.
+- What I tried / how I verified: Checked the gradient formula against the closed form (setting it to zero gives the same equation). Then computed the eigenvalues of XᵀX: largest ≈ 15,246, smallest ≈ 0, so the condition number with α = 1 is about 15,000. One learning rate cannot serve both the steep directions (population, income) and the flat ones (rare-suburb indicators). Adam with lr 0.01 reached the closed-form weights (difference < 1e-4) in about 1,500 steps.
+- Outcome / decision: Kept both loops in the notebook. GD is the honest picture of what a single step size does on this design matrix; Adam is the optimiser used for the MLP later, and now it is written out rather than imported.
+- AI tool used?: Cursor drafted the loops. The convergence numbers and the conditioning explanation come from running them and from the eigenvalue check.
+- Open knowledge gap: I have not derived why Adam's bias correction terms (1 − β^t) are needed; I know they undo the zero initialisation of m and v but have not worked through the expectation argument.
+
 ---
 
 ## Part 2 — Use of AI tools
