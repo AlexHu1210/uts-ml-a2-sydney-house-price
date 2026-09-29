@@ -1,64 +1,54 @@
 # Implementation Log — A2 Sydney House Price Estimation
 
-> Purpose (from the A2 spec): document challenges & solutions, use of AI tools, and knowledge gaps.
-> Write an entry **every working session**. Short, honest and dated. This log is your protection in the Q&A.
+Hangyu Hu — 14735221
 
-Entry template:
-
-```
-### YYYY-MM-DD — <one-line topic>
-- What I did:
-- Problem / question:
-- What I tried / how I verified:
-- Outcome / decision:
-- AI tool used? (what I asked, what it produced, how I checked it):
-- Open knowledge gap (if any):
-```
+This log records what was built, what went wrong, where an AI assistant was used, and what I do not yet fully understand. The notebook was drafted with Cursor. I am responsible for the task definition, the cleaning rules, and for being able to explain both in the presentation.
 
 ---
 
 ## Part 1 — Development entries
 
-### 2026-09-30 — Project setup and first look at the data
-- What I did: chose Option 2 (practical ML system). Task: estimate the sale price of a Greater Sydney residential property. Dataset: `domain_properties.csv` (11,160 Domain.com.au sales, 2016–2022). Created the project skeleton (`data/`, `notebook/`, `journal/`, `report/`) and notebook sections 0–1 (environment, data acquisition, first look).
-- Problem / question: Is this dataset acceptable under the spec ("real, non-trivial, not a toy dataset")?
-- What I tried / how I verified: profiled the CSV — 17 columns, no missing values, 637 suburbs, 16 property types, price range 0.225 M – 60 M AUD. It is real scraped market data with time and macro features, not a textbook dataset.
-- Outcome / decision: accepted. Noted data-quality issues to handle in Section 2 (47-bedroom / 7 m² rows, non-residential types such as *Vacant land*), and a distribution shift issue (48 % of rows are from the 2021 boom year).
-- AI tool used?: Cursor (Claude) helped design the project plan against the rubric and drafted notebook section 0–1 code. I ran every cell locally and checked the printed statistics against my own `pandas` inspection of the CSV.
-- Open knowledge gap: whether `property_inflation_index` is known at sale time (publication lag) — must check the source of the index before deciding to use it as an input feature.
+### 2026-09-30 — Chose the task and checked the file
+- What I did: Option 2. The task is to estimate the sale price of one Greater Sydney residential property. Dataset: `domain_properties.csv`, 11,160 Domain.com.au sales from 13 Jan 2016 to 1 Jan 2022, published on Kaggle by alexlau203.
+- Problem / question: Is this a real dataset, or a toy table the specification disallows?
+- What I tried / how I verified: Printed shape, missing counts, price summary, type counts and year counts. 17 columns, 0 missing values, 637 suburbs, 16 property types, price from 225,000 to 60,000,000 AUD. It is scraped market data, not Iris or Boston Housing.
+- Outcome / decision: Use this file. The modelling target is `log(price)` because the raw price histogram is heavily right-skewed (median 1,388,000; max 60,000,000).
+- AI tool used?: Cursor proposed the task framing and drafted notebook sections 0–1. I checked the printed numbers against the CSV (11,160 rows, 5,328 sales in 2021, median 1,388,000).
+- Open knowledge gap: I do not yet know the publication lag of `property_inflation_index`.
 
-### 2026-09-30 — Published the notebook and checked it runs on Colab
-- What I did: pushed the repository to https://github.com/AlexHu1210/uts-ml-a2-sydney-house-price (public). Opened the notebook in Google Colab and used Runtime → Run all.
-- Problem / question: Colab cannot see the file on my laptop, so the download URL has to work.
-- What I tried / how I verified: Run all finished with no error and showed the two price histograms.
-- Outcome / decision: the notebook is self-contained. First `git push` failed because the Mac keychain offered a different GitHub account; the second attempt, with a personal access token for AlexHu1210, succeeded.
-- AI tool used?: Cursor walked through the GitHub steps. I did the token creation and the push myself.
-- Open knowledge gap: none new.
+### 2026-09-30 — Put the notebook where Colab can run it
+- What I did: Created a public repository https://github.com/AlexHu1210/uts-ml-a2-sydney-house-price and set `DATA_URL` to the raw CSV on that repository.
+- Problem / question: Colab cannot read a file on my laptop. The first `git push` was rejected.
+- What I tried / how I verified: The error was `Permission denied to AlexHu021210` because the Mac keychain stored a different GitHub account. I created a personal access token for AlexHu1210 and pushed again. Then I opened the notebook in Colab and used Runtime → Run all.
+- Outcome / decision: Run all finished with no error and drew the raw-price and log-price histograms. The download URL returns the CSV (1,135,849 bytes).
+- AI tool used?: Cursor gave the Git commands and the raw URL. I created the token and ran the push and the Colab run myself.
+- Open knowledge gap: none.
 
-### 2026-09-30 — Section 2: task boundary and cleaning rules
-- What I did: defined training and deployment inputs/outputs, and removed non-dwellings plus physically implausible rows. 11,160 → 10,864.
-- Problem / question: should a 17 M AUD house be deleted as an outlier?
-- What I tried / how I verified: looked at the extreme rows. 47 bedrooms / 7 m² are entry errors. The 17 M AUD Woollahra sale has 3 bedrooms and 325 m², which is a real expensive house. Price is therefore not capped; the log target will be used instead.
-- Outcome / decision: drop non-residential types, bedrooms outside 0–10, bathrooms outside 0–8, parking outside 0–8, size outside 20–10,000 m².
-- AI tool used?: Cursor drafted the cleaning function. I need to be able to state each bound and why, without reading the code.
-- Open knowledge gap: whether 10,000 m² is the right land-size cap for outer-suburb houses.
-
-<!-- add new entries above this line, newest at the bottom of Part 1 -->
+### 2026-09-30 — Defined the task and removed rows that are not one dwelling
+- What I did: Wrote the training and deployment inputs and outputs in Section 2. Removed non-residential types and physically impossible rows. 11,160 → 10,864 (97.3%).
+- Problem / question: Should the 17,000,000 AUD Woollahra sale be deleted as an outlier?
+- What I tried / how I verified: Printed the extreme rows. A house with 47 bedrooms and 46 bathrooms, a 7 m² house, and a 20,695 m² apartment are not usable dwellings. The Woollahra sale has 3 bedrooms and 325 m², so it is an expensive real sale, not a typo. Sequential removal counts from `clean()`: type 235, bedrooms 22, bathrooms 1, parking 28, size 10.
+- Outcome / decision: Keep residential types only. Keep bedrooms in 0–10, bathrooms in 0–8, parking in 0–8, land size in 20–10,000 m². Do not cap price. Deal with expensive houses by training on `log(price)`.
+- AI tool used?: Cursor drafted `clean()`. I am using the printed removal counts above as the check that the function does what the rules say.
+- Open knowledge gap: 10,000 m² is a judgement. A genuine outer-suburb lot larger than that would be dropped. I have not found a published cutoff to cite.
 
 ---
 
-## Part 2 — Use of AI tools (summary, to be finalised before submission)
+## Part 2 — Use of AI tools
 
-| Where | What AI produced | How I verified / what I changed |
-|-------|------------------|---------------------------------|
-| Notebook §0–1 | boilerplate for env setup, data download with local fallback, summary tables | ran locally, compared numbers with manual `pandas` checks |
+| Where | What the AI produced | How I checked it / what I changed |
+|-------|----------------------|-----------------------------------|
+| Notebook sections 0–1 | Environment setup, download-with-local-fallback, summary tables, histograms | Ran in Colab (Run all, no error). Year counts and the price summary match a direct read of the CSV. |
+| Notebook section 1, first draft | An unused variable `by_half_year` | Deleted. It was computed and never used. |
+| Notebook section 2 | `clean()` and the training/deployment tables | Ran locally. Removal counts are 235, 22, 1, 28, 10. Kept the 17 M AUD house because its bedroom count and land size are plausible. |
+| This log and section 1.3 | First draft of the observation bullets and the log entries | Rewrote section 1.3 in the first person and tied every bullet to a printed number. The log states which parts Cursor wrote. |
 
 ---
 
-## Part 3 — Knowledge gaps (to be finalised before submission)
+## Part 3 — Knowledge gaps
 
-For each item: why the component is needed · how I verified its correctness · what I did to understand it.
-
-| Component | Why needed | How verified | Attempts to understand |
-|-----------|-----------|--------------|------------------------|
-| (fill in as the project progresses) | | | |
+| Component | Why it is needed | How I checked it | What I still do not understand |
+|-----------|------------------|------------------|--------------------------------|
+| `pd.to_datetime(..., format="%d/%m/%y")` | Sale dates are day/month/year (`13/1/16`). A wrong parse would put sales in the wrong year and break the time split. | The printed range is 2016-01-13 to 2022-01-01, which matches the first and last rows of the file. | I have not tried the same call without `format` to see the wrong parse myself. |
+| `property_inflation_index` | It may let the model follow the 2020–2021 price jump. | I only checked that the column changes by year (about 166 in early 2020, 220.1 in late 2021). | I have not confirmed when each quarterly value was published, so I do not know if it is a legal input on the day of the sale. |
+| Land-size cap of 10,000 m² | Drops the 7 m² house and the 20,695 m² apartment. | Those two rows are visible in the extremes and are removed by `property_size.between(20, 10000)`. | I do not have an external source for 10,000 rather than, say, 5,000. |
