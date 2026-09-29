@@ -40,6 +40,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted `split_by_time`. The row counts and medians above are the notebook output.
 - Open knowledge gap: I have not yet measured how many percentage points a real model would look better under the random split. That comparison belongs with the first baseline.
 
+### 2026-09-30 — Checked sections 0–3 against the A2 rubric and fixed the gaps
+- What I did: Compared the notebook with the criterion A table (OK / Clear levels). Section 2.1 listed column names but not type, unit and range per column, which is the OK level, not Clear.
+- Problem / question: How to give the Clear-level specification without typing numbers by hand that could drift from the data.
+- What I tried / how I verified: Added Section 2.3, a table generated from the cleaned `sales` frame (dtype and min/max are computed; unit and note are written by me). Bathrooms now top out at 7, land size at 29–10,000 m², price at 272,500–17,000,000 AUD. Also expanded the motivation in 2.1 with how AVMs are used and tested (IAAO AVM standard; Zillow's within-10% reporting) and wrote the research question explicitly.
+- Outcome / decision: Input specification is now at the Clear level. Colab link added to README and the notebook header.
+- AI tool used?: Cursor did the rubric comparison and drafted the table code and the background paragraph. I checked the census note: the source does not state the census year, so the note says so rather than claiming 2016.
+- Open knowledge gap: I have read about the IAAO standard's ratio-based tests only at summary level. I have not read the full standard.
+
 ---
 
 ## Part 2 — Use of AI tools

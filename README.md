@@ -3,6 +3,9 @@
 UTS 32513 Machine Learning — Assignment A2 (Option 2)
 Hangyu Hu — 14735221 — 2026
 
+Open the notebook in Google Colab (Runtime → Run all; no setup needed):
+https://colab.research.google.com/github/AlexHu1210/uts-ml-a2-sydney-house-price/blob/main/notebook/UTS_ML_A2_Sydney_House_Price.ipynb
+
 ## Contents
 
 | Path | Description |
