@@ -104,6 +104,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the code and text. I checked the calibration table (share below q_τ should equal τ) and the lender table by hand-reading a few rows before accepting the interpretation.
 - Open knowledge gap: I have not proven that the pinball loss minimiser is the τ-quantile; I know the statement and checked it empirically (q10 has 10.9% of prices below it). I also do not know how LightGBM's quantile objective handles leaves with few samples.
 
+### 2026-09-30 — Section 11: deployment function
+- What I did: Wrote `estimate_price(num_bed, num_bath, num_parking, property_size, type, suburb, price_index)`. It validates the inputs against the Section 2.3 ranges, looks up the suburb-level figures from a table built on the data, applies `final_model` and the τ = 0.1/0.25/0.5/0.9 quantile models, and returns a point estimate, an 80% interval and a q25 lending value. Demo on four made-up properties and three real test-period sales.
+- Problem / question: The specification said the deployment interface existed, but nothing in the notebook could actually be called with one property. Also, the quantile models from Section 9 had not been kept.
+- What I tried / how I verified: Stored the quantile models in `quantile_models`. Checked that a 47-bedroom input is rejected with a ValueError, that the Mosman estimate (5.9 M) sits far above Mount Druitt (0.76 M), and that the three real sales fall inside or near their intervals.
+- Outcome / decision: The deployment interface of Section 2.1 now has code behind it, and the presentation can include a live call.
+- AI tool used?: Cursor drafted the function. I checked the validation branch and the sorted-quantile guard against crossing.
+- Open knowledge gap: none new.
+
 ---
 
 ## Part 2 — Use of AI tools
