@@ -132,20 +132,35 @@ This log records what was built, what went wrong, where an AI assistant was used
 
 ## Part 2 — Use of AI tools
 
+The notebook and the first drafts of the text were produced with Cursor (an AI coding assistant). It was also used for the item-by-item comparison against the marking criteria. Every number in the notebook, this log and the report is the output of running the notebook, not a number supplied by the AI.
+
 | Where | What the AI produced | How I checked it / what I changed |
 |-------|----------------------|-----------------------------------|
-| Notebook sections 0–1 | Environment setup, download-with-local-fallback, summary tables, histograms | Ran in Colab (Run all, no error). Year counts and the price summary match a direct read of the CSV. |
+| Notebook sections 0–1 | Environment setup, download-with-local-fallback, summary tables, histograms | Ran in Colab (Run all, no error). Year counts and the price summary match a direct read of the CSV. Also executed from an empty directory to confirm the download path works without a local copy. |
 | Notebook section 1, first draft | An unused variable `by_half_year` | Deleted. It was computed and never used. |
 | Notebook section 2 | `clean()` and the training/deployment tables | Ran locally. Removal counts are 235, 22, 1, 28, 10. Kept the 17 M AUD house because its bedroom count and land size are plausible. |
+| Notebook section 4 | Metric and baseline code | Verified `metrics()` on a hand-made case (+5%, −20%, 0% → PPE10 66.7, MdAPE 5.0). The suburb-median result that looked wrong I reasoned through myself before accepting it. |
 | Notebook section 5 | Feature pipeline, Ridge fit, α sweep | Fixed the `feature_names_out` error myself after reading the traceback. Verified the solver against the closed form (7e-15). |
+| Notebook sections 5.2b and 7 | GD/Adam loops, MLP training loop | Checked the GD gradient against the closed form (setting it to zero gives the same equation); confirmed early stopping keeps the best weights, not the last. Convergence numbers and the condition-number explanation come from my runs. |
+| Notebook sections 6 and 8 | LightGBM fit, ablation harness | The two diagnostics (macro-value replacement → 0.0000; in-range re-test) were run and read by me. Every ablation row was read; the surprising ones (D for LightGBM, Ridge recovering under C) were checked twice. |
+| Notebook sections 9–11 | Loss comparison, quantile models, error cuts, `estimate_price()`, widget | Read the calibration table (share below q_τ should be near τ) and the lender table row by row; checked the input-validation branch and the sorted-quantile guard. Decided that future years in the widget must be shown as a scenario, not a forecast. |
+| Rubric check | Item-by-item comparison and the three additions (overview, bootstrap, wording fix) | Judged the suburb-table sentence to be a wording error, not a leakage error, and changed the text rather than the code. |
 | This log and section 1.3 | First draft of the observation bullets and the log entries | Rewrote section 1.3 in the first person and tied every bullet to a printed number. The log states which parts Cursor wrote. |
+| Report | Structure and first draft of the report text from the notebook outputs | Read every section against the notebook; the discussion, limitations and knowledge gaps are in my own words. |
 
 ---
 
 ## Part 3 — Knowledge gaps
 
+Components I used, can say why they are needed, and checked that they behave as expected, but do not yet fully understand.
+
 | Component | Why it is needed | How I checked it | What I still do not understand |
 |-----------|------------------|------------------|--------------------------------|
 | `pd.to_datetime(..., format="%d/%m/%y")` | Sale dates are day/month/year (`13/1/16`). A wrong parse would put sales in the wrong year and break the time split. | The printed range is 2016-01-13 to 2022-01-01, which matches the first and last rows of the file. | I have not tried the same call without `format` to see the wrong parse myself. |
-| `property_inflation_index` | It may let the model follow the 2020–2021 price jump. | I only checked that the column changes by year (about 166 in early 2020, 220.1 in late 2021). | I have not confirmed when each quarterly value was published, so I do not know if it is a legal input on the day of the sale. |
+| `property_inflation_index` | It lets the final model follow the 2020–2021 price jump. | Checked that it changes by year and measured the cost of using it one quarter late (1–2 PPE10 points). | I have not confirmed when each quarterly value was published, nor which publisher and which dwelling types the index covers. |
 | Land-size cap of 10,000 m² | Drops the 7 m² house and the 20,695 m² apartment. | Those two rows are visible in the extremes and are removed by `property_size.between(20, 10000)`. | I do not have an external source for 10,000 rather than, say, 5,000. |
+| The 10% threshold in PPE10 | Zillow and the IAAO material use it. | — | I have not checked what tolerance Australian lenders actually accept. |
+| Adam's bias-correction terms (1 − β^t) | They undo the zero initialisation of m and v. | Without them convergence was slower; with them the loop reaches the closed form. | I have not worked through the expectation argument for why they are needed. |
+| LightGBM categorical handling | Lets a split group suburbs directly instead of 626 one-hot columns. | Results match the information content of the one-hot Ridge. | I know only that it orders category values by gradient statistics before searching groupings; I have not read the algorithm. |
+| MLP test spread is three times the validation spread | Decides whether one seed is enough to report. | Five seeds: validation PPE10 ± 0.9, test PPE10 ± 2.8. | My guess is that the extrapolation direction is set by weights the validation loss barely constrains; untested. |
+| Pinball loss minimiser is the τ-quantile | Basis of the quantile models and the lending value. | Empirically: 10.9% of test prices fall below q10. | I have not proved it; I also do not know how LightGBM's quantile objective handles leaves with few samples. |
