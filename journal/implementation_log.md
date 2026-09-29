@@ -48,6 +48,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor did the rubric comparison and drafted the table code and the background paragraph. I checked the census note: the source does not state the census year, so the note says so rather than claiming 2016.
 - Open knowledge gap: I have read about the IAAO standard's ratio-based tests only at summary level. I have not read the full standard.
 
+### 2026-09-30 — Section 4: metrics and rule-based baselines
+- What I did: Wrote `metrics()` (PPE10, MdAPE, median bias, RMSE in log and in AUD), a `record()` helper that collects every model's scores in one table, and three baselines fitted on the training period only: global median, suburb median, suburb × type median.
+- Problem / question: The suburb median scored *worse* than the global median on PPE10 (10.7% vs 21.1%). That looked like a bug.
+- What I tried / how I verified: Checked `metrics()` on a hand-made case (+5%, −20%, 0% → PPE10 66.7, MdAPE 5.0). Then looked at median bias: all three rules under-price the test set by about 31–33%. The suburb medians are accurate for 2016–2020 and every one of them is too low for 2021, so almost none land within 10%. The global median (1.11 M) happens to sit near many 2021 sales. Also 148 test rows are in suburbs with no training sales.
+- Outcome / decision: Not a bug. It is the market shift measured. Primary metrics are PPE10 and MdAPE; RMSE in AUD is reported but not used for choosing models because the 17 M house dominates it. The leakage check is now quantitative: the same rule on a random split has bias −1.2% and MdAPE 24.1%.
+- AI tool used?: Cursor drafted the metric and baseline code. I checked the metric with the hand-made case and reasoned through the suburb-median result above before accepting it.
+- Open knowledge gap: I chose 10% for PPE10 because Zillow and the IAAO material use it. I have not checked what tolerance Australian lenders use.
+
 ---
 
 ## Part 2 — Use of AI tools
