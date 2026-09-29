@@ -88,6 +88,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the training loop. I checked that the loop matches Section 5.2b (forward, loss, backward, Adam step) and that early stopping keeps the best weights rather than the last.
 - Open knowledge gap: I do not know why the seed-to-seed spread on *test* is three times the spread on *validation*. My guess is that the extrapolation direction is decided by weights that the validation loss barely constrains, but I have not tested it.
 
+### 2026-09-30 — Section 8: ablations and the final model
+- What I did: One harness, `run_ablation`, that trains LightGBM or Ridge with a chosen feature list and target. Experiments: A raw vs log target; B drop macro, then also time inputs; C target = log(price) − log(index) with the index added back; C′ the same with the index lagged one quarter; D drop the suburb categorical; E random split.
+- Problem / question: Does the fix for the tree model's extrapolation problem come from the model or from the target? And is the index a legal input on the day of sale?
+- What I tried / how I verified: C lifts LightGBM from 22.5% to 37.7% PPE10 and Ridge from 33.6% to 37.3%; both models end within half a point of each other, so the target is what mattered. C′ (index from 91 days earlier, ratio to same-quarter index 1.036 in the test period) costs 1–2 points and 2–3 points of bias, so the fix survives realistic publication lag. D: removing `suburb` costs Ridge 7 points and LightGBM nothing (validation 39.0%, the highest of all rows) — the suburb-level numerics already locate the property for a tree. E: random split shows 42.3% vs 37.7%, about 5 points of inflation.
+- Outcome / decision: Final model chosen on validation PPE10: LightGBM, index-adjusted target, property and suburb numerics, `type` categorical, no suburb categorical, no time inputs (620 trees). Test 37.9% / 13.4% / −4.7%. Reported alongside it: the lagged-index deployment score 35.7% / 14.5% / −7.9%.
+- AI tool used?: Cursor drafted the harness. I read every row of the table before writing the interpretation; the surprising rows (D for LightGBM, Ridge recovering under C) are the ones I checked twice.
+- Open knowledge gap: The remaining −4.7% bias under C means the index rose less than this segment's prices in 2021 H2. I have not checked which index this column is (city-wide? all dwellings?) to explain the gap.
+
 ---
 
 ## Part 2 — Use of AI tools
