@@ -80,6 +80,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the section. The two diagnostic checks were run and read by me; the 0.0000 result is what convinced me it was extrapolation and not a coding error.
 - Open knowledge gap: I understand LightGBM's categorical handling only at the level of "it groups category values at a split"; I have not read how it orders categories by gradient statistics to find the grouping.
 
+### 2026-09-30 — Section 7: MLP in PyTorch, five seeds
+- What I did: 616 → 128 → 64 → 1 ReLU network (87,297 parameters), squared error on log price, mini-batch Adam, dropout 0.1, early stopping on validation loss. Trained with seeds 0–4.
+- Problem / question: In a first sweep, configurations that were within 1 point of each other on validation were up to 10 points apart on test (27% to 38% PPE10). Which number is "the" MLP result?
+- What I tried / how I verified: Fixed one configuration and varied only the seed. Validation PPE10 35.3 ± 0.9; test PPE10 33.7 ± 2.8; test bias 6.2 ± 4.4 (range +1.8% to +12.7%). The best epoch is 5–12, after which validation loss rises: the network overfits fast on 5,629 rows.
+- Outcome / decision: Report mean ± std, and carry the seed with the best *validation* PPE10 (seed 2) into the results table. Test PPE10 33.6%, MdAPE 15.7%, bias +7.6% — same level as Ridge. The network does extrapolate (2021 macro inputs move its predictions by about 26%), which confirms the Section 6 diagnosis: only the tree class is flat outside its range.
+- AI tool used?: Cursor drafted the training loop. I checked that the loop matches Section 5.2b (forward, loss, backward, Adam step) and that early stopping keeps the best weights rather than the last.
+- Open knowledge gap: I do not know why the seed-to-seed spread on *test* is three times the spread on *validation*. My guess is that the extrapolation direction is decided by weights that the validation loss barely constrains, but I have not tested it.
+
 ---
 
 ## Part 2 — Use of AI tools
