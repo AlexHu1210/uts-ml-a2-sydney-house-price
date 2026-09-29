@@ -32,6 +32,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted `clean()`. I am using the printed removal counts above as the check that the function does what the rules say.
 - Open knowledge gap: 10,000 m² is a judgement. A genuine outer-suburb lot larger than that would be dropped. I have not found a published cutoff to cite.
 
+### 2026-09-30 — Section 3: split by sale date
+- What I did: Train = sales before 2021-01-01 (5,629 rows). Validation = 1 Jan 2021 to 30 Jun 2021 (1,328). Test = on or after 1 Jul 2021 (3,907).
+- Problem / question: Why not `train_test_split` with a random shuffle?
+- What I tried / how I verified: A random training set of the same size still has about 47% of its rows from 2021 or later. Its median price is about 1.38 M AUD. The time-split training median is about 1.11 M AUD, while validation and test medians are about 1.73 M and 1.65 M AUD.
+- Outcome / decision: Use only the time split from here on. The random split is kept as a leakage demonstration.
+- AI tool used?: Cursor drafted `split_by_time`. The row counts and medians above are the notebook output.
+- Open knowledge gap: I have not yet measured how many percentage points a real model would look better under the random split. That comparison belongs with the first baseline.
+
 ---
 
 ## Part 2 — Use of AI tools
