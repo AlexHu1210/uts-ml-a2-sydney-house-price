@@ -96,6 +96,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the harness. I read every row of the table before writing the interpretation; the surprising rows (D for LightGBM, Ridge recovering under C) are the ones I checked twice.
 - Open knowledge gap: The remaining −4.7% bias under C means the index rose less than this segment's prices in 2021 H2. I have not checked which index this column is (city-wide? all dwellings?) to explain the gap.
 
+### 2026-09-30 — Sections 9 and 10: loss vs objective, quantiles, error analysis, conclusion
+- What I did: (9) Wrote out why PPE10 cannot be a training loss (zero gradient, ignores miss size) and measured how the squared-log loss and PPE10 disagree. Trained the final configuration with four LightGBM losses (L2, L1, Huber, Fair). Trained quantile models (τ = 0.1–0.9) with the pinball loss and evaluated calibration and a lender's over-valuation rate. (10) Cut the final model's test errors by price band, distance, type and unseen suburb; listed the worst misses and feature gain; wrote limitations, future work and the conclusion.
+- Problem / question: Is the loss/objective mismatch real or academic here?
+- What I tried / how I verified: The worst 5% of test sales carry 41.8% of the squared-log loss and none of them are inside 10%. Swapping the loss moves PPE10 by under a point (37.3–38.2%) and the best loss by RMSE-log (L2) is not the best by PPE10 (Fair). Quantiles: 70% coverage for the nominal 80% band, all quantiles shifted down with the point estimate. q25 cuts over-valuation by >10% from 23.6% to 9.7% at a cost of 5 PPE10 points.
+- Outcome / decision: Selection stays on PPE10/MdAPE; production should monitor median bias by month; lenders should use a quantile. Error analysis: mid-market (0.8–2 M) 41–46% PPE10, >4 M only 11% with −32% bias, apartments +7%, outer ring −12%. The single city-wide index is the main structural limitation; the worst individual misses are 7–10 bedroom "houses" that passed cleaning.
+- AI tool used?: Cursor drafted the code and text. I checked the calibration table (share below q_τ should equal τ) and the lender table by hand-reading a few rows before accepting the interpretation.
+- Open knowledge gap: I have not proven that the pinball loss minimiser is the τ-quantile; I know the statement and checked it empirically (q10 has 10.9% of prices below it). I also do not know how LightGBM's quantile objective handles leaves with few samples.
+
 ---
 
 ## Part 2 — Use of AI tools
