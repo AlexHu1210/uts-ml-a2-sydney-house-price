@@ -1,0 +1,19 @@
+# Sydney House Price Estimation under Market Shift
+
+UTS 32513 Machine Learning — Assignment A2 (Option 2)
+Hangyu Hu — 14735221 — 2026
+
+## Contents
+
+| Path | Description |
+|------|-------------|
+| `notebook/UTS_ML_A2_Sydney_House_Price.ipynb` | Complete, self-contained implementation (runs on Google Colab) |
+| `data/domain_properties.csv` | Dataset used by the notebook |
+| `journal/implementation_log.md` | Implementation log: challenges, use of AI tools, knowledge gaps |
+| `report/` | Project report |
+
+## Dataset
+
+*Sydney House Prices* — 11,160 residential property sales in Greater Sydney (2016–2022) from Domain.com.au, with suburb-level census statistics and macro-economic indicators.
+
+Source: Kaggle user `alexlau203`, https://www.kaggle.com/datasets/alexlau203/sydney-house-prices
