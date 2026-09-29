@@ -72,6 +72,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the loops. The convergence numbers and the conditioning explanation come from running them and from the eigenvalue check.
 - Open knowledge gap: I have not derived why Adam's bias correction terms (1 − β^t) are needed; I know they undo the zero initialisation of m and v but have not worked through the expectation argument.
 
+### 2026-09-30 — Section 6: LightGBM is worse than Ridge on the 2021 test set
+- What I did: Fitted LightGBM on the same information as Ridge (raw numerics, `type` and `suburb` as categorical), squared error on log price, early stopping on validation, num_leaves chosen on validation (15). Test PPE10 22.5%, MdAPE 20.1%, median bias −18.2%. Ridge had 33.6% / 15.9% / +8.7%.
+- Problem / question: The "stronger" model lost by 11 PPE10 points. Bug, or real?
+- What I tried / how I verified: (1) Overwrote the test rows' `year`, `cash_rate`, `property_inflation_index` with end-of-2020 values and re-predicted: the largest change in any prediction was 0.0000. The trees price 2021 exactly like late 2020. Training range of the index is 150.9–183.1; test is 183.1–220.1, all on one side of every split. (2) Fitted both models on sales before July 2020 and scored on 2020 H2 (inside the training range): LightGBM 43.7% PPE10 / 12.0% MdAPE vs Ridge 37.1% / 14.5%. So the tree is better when it does not have to extrapolate.
+- Outcome / decision: Real, and it is the central finding so far. Trees cannot extrapolate a time trend; a linear model can but overshoots. The fix is to take the trend out of the target (price relative to the price index) — a preview run gave 38.7% PPE10 on test with −3.9% bias. That becomes Section 8. Left the honest LightGBM row in the results table.
+- AI tool used?: Cursor drafted the section. The two diagnostic checks were run and read by me; the 0.0000 result is what convinced me it was extrapolation and not a coding error.
+- Open knowledge gap: I understand LightGBM's categorical handling only at the level of "it groups category values at a split"; I have not read how it orders categories by gradient statistics to find the grouping.
+
 ---
 
 ## Part 2 — Use of AI tools
