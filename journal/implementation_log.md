@@ -27,6 +27,22 @@ Entry template:
 - AI tool used?: Cursor (Claude) helped design the project plan against the rubric and drafted notebook section 0–1 code. I ran every cell locally and checked the printed statistics against my own `pandas` inspection of the CSV.
 - Open knowledge gap: whether `property_inflation_index` is known at sale time (publication lag) — must check the source of the index before deciding to use it as an input feature.
 
+### 2026-09-30 — Published the notebook and checked it runs on Colab
+- What I did: pushed the repository to https://github.com/AlexHu1210/uts-ml-a2-sydney-house-price (public). Opened the notebook in Google Colab and used Runtime → Run all.
+- Problem / question: Colab cannot see the file on my laptop, so the download URL has to work.
+- What I tried / how I verified: Run all finished with no error and showed the two price histograms.
+- Outcome / decision: the notebook is self-contained. First `git push` failed because the Mac keychain offered a different GitHub account; the second attempt, with a personal access token for AlexHu1210, succeeded.
+- AI tool used?: Cursor walked through the GitHub steps. I did the token creation and the push myself.
+- Open knowledge gap: none new.
+
+### 2026-09-30 — Section 2: task boundary and cleaning rules
+- What I did: defined training and deployment inputs/outputs, and removed non-dwellings plus physically implausible rows. 11,160 → 10,864.
+- Problem / question: should a 17 M AUD house be deleted as an outlier?
+- What I tried / how I verified: looked at the extreme rows. 47 bedrooms / 7 m² are entry errors. The 17 M AUD Woollahra sale has 3 bedrooms and 325 m², which is a real expensive house. Price is therefore not capped; the log target will be used instead.
+- Outcome / decision: drop non-residential types, bedrooms outside 0–10, bathrooms outside 0–8, parking outside 0–8, size outside 20–10,000 m².
+- AI tool used?: Cursor drafted the cleaning function. I need to be able to state each bound and why, without reading the code.
+- Open knowledge gap: whether 10,000 m² is the right land-size cap for outer-suburb houses.
+
 <!-- add new entries above this line, newest at the bottom of Part 1 -->
 
 ---
