@@ -56,6 +56,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the metric and baseline code. I checked the metric with the hand-made case and reasoned through the suburb-median result above before accepting it.
 - Open knowledge gap: I chose 10% for PPE10 because Zillow and the IAAO material use it. I have not checked what tolerance Australian lenders use.
 
+### 2026-09-30 — Section 5: Ridge regression on log(price)
+- What I did: Built the shared feature encoding (standardised numerics, log1p land size, one-hot type and suburb; 616 columns). Fitted Ridge on log(price), chose α = 1 on validation, scored test once.
+- Problem / question: (1) `get_feature_names_out` failed with "Estimator log1p does not provide get_feature_names_out". (2) Is sklearn's Ridge really solving the loss I wrote down?
+- What I tried / how I verified: (1) `FunctionTransformer` needs `feature_names_out="one-to-one"` to pass column names through; added it. (2) Implemented the closed form w = (XᵀX + αI)⁻¹Xᵀy on centred data in numpy and compared to `Ridge(alpha=1).coef_`: largest difference 7e-15.
+- Outcome / decision: Test PPE10 33.6%, MdAPE 15.9%, median bias +8.7% (validation +1.7%). The 30% under-pricing of the baselines is gone; the linear extension of year / cash rate / price index into 2021 now overshoots in H2. α barely matters (validation PPE10 within 3 points from 0.01 to 100). Largest weights are rare-suburb indicators.
+- AI tool used?: Cursor drafted the pipeline and the section text. The closed-form check is the evidence that the library call matches the formula; the α sweep and coefficient listing are notebook output.
+- Open knowledge gap: I know sklearn centres X and y to handle the intercept without penalising it, which is why my centred closed form matches. I have not read how it handles the sparse one-hot matrix internally (it did not need `.toarray()`).
+
 ---
 
 ## Part 2 — Use of AI tools
@@ -65,6 +73,7 @@ This log records what was built, what went wrong, where an AI assistant was used
 | Notebook sections 0–1 | Environment setup, download-with-local-fallback, summary tables, histograms | Ran in Colab (Run all, no error). Year counts and the price summary match a direct read of the CSV. |
 | Notebook section 1, first draft | An unused variable `by_half_year` | Deleted. It was computed and never used. |
 | Notebook section 2 | `clean()` and the training/deployment tables | Ran locally. Removal counts are 235, 22, 1, 28, 10. Kept the 17 M AUD house because its bedroom count and land size are plausible. |
+| Notebook section 5 | Feature pipeline, Ridge fit, α sweep | Fixed the `feature_names_out` error myself after reading the traceback. Verified the solver against the closed form (7e-15). |
 | This log and section 1.3 | First draft of the observation bullets and the log entries | Rewrote section 1.3 in the first person and tied every bullet to a printed number. The log states which parts Cursor wrote. |
 
 ---
