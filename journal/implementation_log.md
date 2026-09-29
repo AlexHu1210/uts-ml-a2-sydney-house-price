@@ -112,6 +112,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor drafted the function. I checked the validation branch and the sorted-quantile guard against crossing.
 - Open knowledge gap: none new.
 
+### 2026-09-30 — Full check of the notebook against the A2 specification
+- What I did: Went through the specification (submission rules, criteria A/B/C, clarifications) item by item against the notebook, the log and the repository.
+- Problem / question: Three gaps. (1) Section 11 said the suburb lookup table was "built on training data"; the code uses all rows. (2) Criterion B asks for a system overview of the data flow; the notebook had no single place that gave it. (3) Criterion C (Fair) asks for statistical reporting; the final model and baselines were single point values.
+- What I tried / how I verified: (1) The suburb table holds static census figures and coordinates, not prices, so using all rows is not label leakage; corrected the sentence rather than the code. (2) Added a "System overview" block before Section 2 with the data flow and section references. (3) Added a 2,000-sample bootstrap of the test set: final model PPE10 95% CI [36.4, 39.4], baseline [19.9, 22.4], gain 16.7 points with CI [14.9, 18.6].
+- Outcome / decision: Notebook content complete for criteria A, B, C. Remaining deliverables: the report PDF (with plain-text notebook link and this log), optional slides, and a fresh Colab Run-all of the final notebook.
+- AI tool used?: Cursor did the item-by-item comparison and drafted the additions. I decided that the suburb-table issue was a wording error and not a leakage error.
+- Open knowledge gap: none new.
+
 ---
 
 ## Part 2 — Use of AI tools
