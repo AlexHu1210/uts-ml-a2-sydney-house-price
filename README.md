@@ -10,7 +10,7 @@ https://colab.research.google.com/github/AlexHu1210/uts-ml-a2-sydney-house-price
 
 | Path | Description |
 |------|-------------|
-| `notebook/UTS_ML_A2_Sydney_House_Price.ipynb` | Complete, self-contained implementation (runs on Google Colab) |
+| `notebook/UTS_ML_A2_Sydney_House_Price.ipynb` | Complete, self-contained implementation (runs on Google Colab). Section 11.3 has an interactive estimator: run all cells, then price a property of your choice |
 | `data/domain_properties.csv` | Dataset used by the notebook |
 | `journal/implementation_log.md` | Implementation log: challenges, use of AI tools, knowledge gaps |
 | `report/` | Project report |

@@ -120,6 +120,14 @@ This log records what was built, what went wrong, where an AI assistant was used
 - AI tool used?: Cursor did the item-by-item comparison and drafted the additions. I decided that the suburb-table issue was a wording error and not a leakage error.
 - Open knowledge gap: none new.
 
+### 2026-09-30 — Section 11.3: interactive estimator
+- What I did: Added ipywidgets controls (suburb search box, type, room sliders, land size, price index) that call `estimate_price()` and draw the estimate, the q25–q75 and q10–q90 bands, and every recorded sale of the same type in that suburb rescaled to the chosen index.
+- Problem / question: The deployment function existed but was easy to miss; a reader had to write a Python call to try a property. Also wanted a visual check of whether the interval sits where the suburb's own sales sit.
+- What I tried / how I verified: `interactive_output` so the chart updates on any control change without a button. Rendered the default case (3-bed house, Parramatta) offline to check the chart; comparable sales fall inside or near the band, with the outliers being the large blocks Section 10 discusses.
+- Outcome / decision: Kept the printed demos in 11.1–11.2 because widgets do not render on a static GitHub view. Added a pointer in the notebook header and README.
+- AI tool used?: Cursor wrote the widget layout. I chose what to show in the chart (index-adjusted comparables rather than raw prices) so that old sales are comparable with the current estimate.
+- Open knowledge gap: none new.
+
 ---
 
 ## Part 2 — Use of AI tools
